@@ -33,41 +33,45 @@ class ProductManager {
 		status,
 		stock,
 		category,
-		thumbail
+		thumbnail
 	) {
-		// Al último ID le sumo 1 y se lo asigno a la propiedad id del objeto.
-		let mayorID = await this.getIDs();
+		try {
+			// Al último ID le sumo 1 y se lo asigno a la propiedad id del objeto.
+			let mayorID = await this.getIDs();
 
-		const product = {
-			title,
-			description,
-			code,
-			price,
-			status,
-			stock,
-			category,
-			thumbail,
-			id: ++mayorID,
-		};
+			const product = {
+				title,
+				description,
+				code,
+				price,
+				status,
+				stock,
+				category,
+				thumbnail,
+				id: ++mayorID,
+			};
 
-		let products = await this.getProducts();
-		let verificar = Object.values(product);
-		let sameCode = products.find((prod) => prod.code === code);
+			let products = await this.getProducts();
+			let verificar = Object.values(product);
+			let sameCode = products.find((prod) => prod.code === code);
 
-		if (verificar.includes(undefined)) {
-			throw new Error(
-				`El producto ${product.title} NO ha sido cargado, debe completar todos los datos.`
-			);
+			if (verificar.includes(undefined)) {
+				throw new Error(
+					`El producto ${product.title} NO ha sido cargado, debe completar todos los datos.`
+				);
+			}
+			if (sameCode) {
+				throw new Error(
+					`El producto ${product.title} NO ha sido cargado ya que la propiedad "code" está repetida, ${sameCode.title} tiene el mismo valor.`
+				);
+			}
+
+			products = [...products, product];
+			console.log(`${product.title} cargado correctamente.`);
+			await fs.promises.writeFile(this.#path, JSON.stringify(products));
+		} catch (err) {
+			throw new Error(err);
 		}
-		if (sameCode) {
-			throw new Error(
-				`El producto ${product.title} NO ha sido cargado ya que la propiedad "code" está repetida, ${sameCode.title} tiene el mismo valor.`
-			);
-		}
-
-		products = [...products, product];
-		console.log(`${product.title} cargado correctamente.`);
-		await fs.promises.writeFile(this.#path, JSON.stringify(products));
 	}
 
 	//Para modificar un producto debemos pasar como primer parámetro el ID, y como segundo parámetro un objeto con las propiedades modificadas.
@@ -161,7 +165,6 @@ async function main() {
 	// 	"fruts",
 	// 	"../public/pear.webp"
 	// );
-
 	// await manager.addProduct(
 	// 	"Banana",
 	// 	"Son bananas",
@@ -172,41 +175,25 @@ async function main() {
 	// 	"fruts",
 	// 	"../public/banana.webp"
 	// );
-
 	// console.log(await manager.getProducts());
 
 	//----------TEST GET PRODUCT BY ID
-
 	// const searchedProduct = manager.getProductById(3);
-
 	// console.log(await searchedProduct);
-
 	//----------TEST DELETE PRODUCT
-
 	// await manager.deleteProduct(3);
-
 	// console.log(await manager.getProducts());
-
 	//----------ACTUALIZAR PRODUCTOS
-
 	// const productUpdates = {
 	// 	title: "pinaASD2",
-
 	// 	description: "hey apple hey NEWASDFWWWW",
-
 	// 	price: 50,
-
 	// 	thumbnail: "con foto",
-
 	// 	code: "codigASDo4",
-
 	// 	stock: 2,
 	// };
-
 	// const UpdateProductPera = manager.updateProduct(1, productUpdates);
-
 	// console.log(await UpdateProductPera);
-
 	// console.log(await manager.getProducts());
 }
 

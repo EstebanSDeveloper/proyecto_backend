@@ -4,7 +4,7 @@ import ProductManager from "../ProductManager.js";
 const productsRouter = Router();
 productsRouter.use(json());
 
-const manager = new ProductManager("../products.json");
+const manager = new ProductManager("/products.json");
 
 productsRouter.get("/", async (req, res) => {
 	try {
@@ -37,21 +37,21 @@ productsRouter.get("/:pid", async (req, res) => {
 
 productsRouter.post("/", async (req, res) => {
 	try {
-		// esto es lo que solicita que contenga el body para agregar un nuevo producto, thumbnail y status tienen caracteristicas predefinidas desde el req
-		const newProduct = ({
+		// En el body no envío "thumbail" ni "status", los defino por defecto hasta que tenga que cambiarlo
+		const {
 			title,
 			description,
 			code,
 			price,
-			status,
+			status = true,
 			stock,
 			category,
 			thumbail = [],
-		} = req.body);
+		} = req.body;
 		await manager.addProduct(
 			title,
 			description,
-			parseInt(code),
+			code,
 			parseInt(price),
 			status,
 			parseInt(stock),
@@ -59,21 +59,37 @@ productsRouter.post("/", async (req, res) => {
 			thumbail
 		);
 
-		products = [...products, newProduct];
-
-		res.send({ status: "success", payload: req.body });
-	} catch (error) {
-		request.status(404).send({ status: "error" });
+		res.send({ status: "succes", payload: req.body });
+	} catch (err) {
+		res.status(404).send({ status: "error", error: `${err}` });
 	}
 });
 
-productsRouter.put("/pid", async (req, res) => {
+productsRouter.put("/:pid", async (req, res) => {
 	try {
 		const { pid } = req.params;
-		await manager.updateProduct({ pid }, req.body);
+		const id = parseInt(pid);
+		await manager.updateProduct(id, req.body);
 
-		res.send({ status: "success", payload: await manager.getProductById(pid) });
-	} catch (error) {}
+		res.send({ status: "success", payload: await manager.getProductById(id) });
+	} catch (err) {
+		res.status(404).send({ status: "error", error: `${err}` });
+	}
+});
+
+productsRouter.delete("/:pid", async (req, res) => {
+	try {
+		const { pid } = req.params;
+		const id = parseInt(pid);
+		await manager.deleteProduct(id);
+
+		res.send({
+			status: "success",
+			payload: `product with the ID: ${id} was deleted`,
+		});
+	} catch (err) {
+		res.status(404).send({ status: "error", error: `${err}` });
+	}
 });
 
 export default productsRouter;
