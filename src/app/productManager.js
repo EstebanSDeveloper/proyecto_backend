@@ -1,7 +1,11 @@
 import fs from "fs";
 
 class ProductManager {
-	#path = "./products.json";
+	#path = "";
+
+	constructor(path) {
+		this.#path = path;
+	}
 
 	async getProducts() {
 		try {
