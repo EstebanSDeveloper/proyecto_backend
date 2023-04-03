@@ -1,12 +1,12 @@
 import express, { json } from "express";
-import ProductManager from "./managers/ProductManager.js";
+import { ProductManager, CartManager } from "./dao/index.js";
 import productsRouter from "./routes/products.router.js";
-import CartManager from "./managers/CartManager.js";
 import cartsRouter from "./routes/carts.router.js";
 import { engine } from "express-handlebars";
 import { Server } from "socket.io";
 import __dirname from "./utils.js";
 import viewsRouter from "./routes/views.router.js";
+import mongoose from "mongoose";
 
 const manager = new ProductManager("./src/jsons/products.json");
 const cartManager = new CartManager("./src/jsons/cart.json");
@@ -21,6 +21,15 @@ app.use(express.static(__dirname + "/../public"));
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", __dirname + "/views");
+
+// Conexion mongoose para Mongo Atlas
+mongoose
+	.connect(
+		"mongodb+srv://estebansarmientop:hs11duZxEIqSBTFO@codercluster.rweugnj.mongodb.net/ecommerce?retryWrites=true&w=majority"
+	)
+	.then((conn) => {
+		console.log("Connected to DB!");
+	});
 
 // Socket.IO
 const httpServer = app.listen(8080, () => {

@@ -6,7 +6,7 @@ viewsRouter.use(json());
 
 viewsRouter.get("/", async (req, res) => {
 	const products = await manager.getProducts();
-	res.render("index", { products, title: "Product" });
+	res.render("index", { products, title: "Products" });
 });
 
 viewsRouter.get("/real-time-products", async (req, res) => {

@@ -19,17 +19,17 @@ productsRouter.get("/", async (req, res) => {
 			res.send(products);
 		}
 	} catch (err) {
-		res.status(404).send(`${err}`);
+		res.status(404).send({ status: "error", error: `${err}` });
 	}
 });
 
 productsRouter.get("/:pid", async (req, res) => {
 	try {
 		const { pid } = req.params;
-		const product = await manager.getProductById(parseInt(pid));
-		res.send(product);
+		const product = await manager.getProductById(pid);
+		res.send({ status: "succes", payload: product });
 	} catch (err) {
-		res.status(404).send(`${err}`);
+		res.status(404).send({ status: "error", error: `${err}` });
 	}
 });
 
@@ -39,22 +39,22 @@ productsRouter.post("/", async (req, res) => {
 		const {
 			title,
 			description,
-			code,
 			price,
-			status = true,
+			thumbail,
+			code,
 			stock,
+			status,
 			category,
-			thumbail = [],
 		} = req.body;
 		await manager.addProduct(
 			title,
 			description,
-			code,
 			parseInt(price),
-			status,
+			thumbail,
+			code,
 			parseInt(stock),
-			category,
-			thumbail
+			status,
+			category
 		);
 		//WEBSOCKET
 		req.io.emit("new-product", req.body);
@@ -67,14 +67,12 @@ productsRouter.post("/", async (req, res) => {
 productsRouter.put("/:pid", async (req, res) => {
 	try {
 		const { pid } = req.params;
-		const id = parseInt(pid);
-		await manager.updateProduct(id, req.body);
+		await manager.updateProduct(pid, req.body);
 
-		//WEBSOCKET
 		const products = await manager.getProducts();
 		req.io.emit("update-product", products);
 
-		res.send({ status: "success", payload: await manager.getProductById(id) });
+		res.send({ status: "succes", payload: await manager.getProductById(pid) });
 	} catch (err) {
 		res.status(404).send({ status: "error", error: `${err}` });
 	}
@@ -83,8 +81,7 @@ productsRouter.put("/:pid", async (req, res) => {
 productsRouter.delete("/:pid", async (req, res) => {
 	try {
 		const { pid } = req.params;
-		const id = parseInt(pid);
-		await manager.deleteProduct(id);
+		await manager.deleteProduct(pid);
 
 		//WEBSOCKET
 		const products = await manager.getProducts();
@@ -92,7 +89,7 @@ productsRouter.delete("/:pid", async (req, res) => {
 
 		res.send({
 			status: "success",
-			payload: `product with the ID: ${id} was deleted`,
+			payload: "Producto eliminado",
 		});
 	} catch (err) {
 		res.status(404).send({ status: "error", error: `${err}` });

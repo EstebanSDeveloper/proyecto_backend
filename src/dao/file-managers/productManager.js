@@ -11,13 +11,15 @@ class ProductManager {
 		try {
 			const products = await fs.promises.readFile(this.#path, "utf-8");
 			return JSON.parse(products);
-		} catch {
+		} catch (err) {
+			console.log(err);
 			return [];
 		}
 	}
 
 	async getIDs() {
 		let products = await this.getProducts();
+		console.log(products);
 		// Genero un array con todos los id's.
 		let ids = products.map((prods) => prods.id);
 		// Saco el id mayor y lo retorno.
@@ -25,7 +27,7 @@ class ProductManager {
 		if (mayorID === -Infinity) {
 			return 0;
 		} else {
-			return mayorID;
+			return ++mayorID;
 		}
 	}
 
@@ -37,22 +39,21 @@ class ProductManager {
 		status,
 		stock,
 		category,
-		thumbnail
+		thumbail
 	) {
 		try {
-			// Al último ID le sumo 1 y se lo asigno a la propiedad id del objeto.
 			let mayorID = await this.getIDs();
 
 			const product = {
+				id: mayorID,
 				title,
 				description,
-				code,
 				price,
-				status,
+				thumbail,
+				code,
 				stock,
+				status,
 				category,
-				thumbnail,
-				id: ++mayorID,
 			};
 
 			let products = await this.getProducts();
@@ -102,6 +103,14 @@ class ProductManager {
 			}
 		}
 
+		if (Object.keys(propModify).includes("price")) {
+			propModify.price = parseInt(propModify.price);
+		}
+
+		if (Object.keys(propModify).includes("stock")) {
+			propModify.stock = parseInt(propModify.stock);
+		}
+
 		// Modificamos el producto y filtramos un array sin el producto modificado para agreagarlo y que no se repita.
 		productModify = { ...productModify, ...propModify };
 		let newArray = products.filter((prods) => prods.id !== id);
@@ -133,74 +142,5 @@ class ProductManager {
 		console.log(`Producto con id ${id} eliminado con éxito`);
 	}
 }
-
-async function main() {
-	const manager = new ProductManager();
-
-	//----------TEST ADD PRODUCT = SHIFT + ALT +F DAR FORMATO A .JSON
-
-	// await manager.addProduct(
-	// 	"Manzana",
-	// 	"Es una manzana",
-	// 	200,
-	// 	5,
-	// 	true,
-	// 	10,
-	// 	"fruts",
-	// 	"../public/apple.webp"
-	// );
-	// await manager.addProduct(
-	// 	"Durazno",
-	// 	"Es un durazno",
-	// 	201,
-	// 	3,
-	// 	true,
-	// 	23,
-	// 	"fruts",
-	// 	"../public/peach.webp"
-	// );
-	// await manager.addProduct(
-	// 	"Pera",
-	// 	"Es una pera",
-	// 	202,
-	// 	4,
-	// 	true,
-	// 	15,
-	// 	"fruts",
-	// 	"../public/pear.webp"
-	// );
-	// await manager.addProduct(
-	// 	"Banana",
-	// 	"Son bananas",
-	// 	203,
-	// 	1,
-	// 	true,
-	// 	50,
-	// 	"fruts",
-	// 	"../public/banana.webp"
-	// );
-	// console.log(await manager.getProducts());
-
-	//----------TEST GET PRODUCT BY ID
-	// const searchedProduct = manager.getProductById(3);
-	// console.log(await searchedProduct);
-	//----------TEST DELETE PRODUCT
-	// await manager.deleteProduct(3);
-	// console.log(await manager.getProducts());
-	//----------ACTUALIZAR PRODUCTOS
-	// const productUpdates = {
-	// 	title: "pinaASD2",
-	// 	description: "hey apple hey NEWASDFWWWW",
-	// 	price: 50,
-	// 	thumbnail: "con foto",
-	// 	code: "codigASDo4",
-	// 	stock: 2,
-	// };
-	// const UpdateProductPera = manager.updateProduct(1, productUpdates);
-	// console.log(await UpdateProductPera);
-	// console.log(await manager.getProducts());
-}
-
-main();
 
 export default ProductManager;
