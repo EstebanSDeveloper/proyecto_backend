@@ -125,7 +125,7 @@ class ProductManager {
 		if (element) {
 			return element;
 		} else {
-			throw new Error("No se encuentra producto con ese ID.");
+			throw new Error(`No se encuentra producto con el ID ${id}`);
 		}
 	}
 

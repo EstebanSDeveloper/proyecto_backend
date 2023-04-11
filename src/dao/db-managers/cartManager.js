@@ -29,33 +29,45 @@ export default class CartManager {
 
 	async getCartProducts(id) {
 		try {
-			const cart = await cartModel.findById(id);
+			const cart = await cartModel
+				.findById(id)
+				.populate("products.product")
+				.lean();
 			return cart;
-		} catch (error) {}
+		} catch (error) {
+			throw new Error(error);
+		}
 	}
 
 	async addProductToCart(prod, cartID) {
 		try {
 			const cart = await cartModel.findById(cartID);
-			const product = cart.products.find((elem) => elem.title === prod.title);
-			if (product) {
-				product.quantity += 1;
+			const productInCart = cart.products.find(
+				(elem) => elem.product.toString() === prod._id.toString()
+			);
+			if (productInCart) {
+				productInCart.quantity += 1;
 				await cart.save();
+				await cart.populate("products.product");
+				console.log(JSON.stringify(cart, null, "\t"));
 			} else {
-				cart.products.push({ product: prod._id, title: prod.title });
+				cart.products.push({ product: prod._id });
 				await cart.save();
+				await cart.populate("products.product");
+				console.log(JSON.stringify(cart, null, "\t"));
 			}
-
-			console.log(cart);
 		} catch (error) {
-			throw new Error(error.message);
+			throw new Error(error);
 		}
 	}
 
 	async deleteProductInCart(cartID, productID) {
 		try {
 			const cart = await cartModel.findById(cartID);
-			const product = cart.products.find((elem) => elem.product === productID);
+			const product = cart.products.find(
+				(elem) => elem.product.toString() === productID
+			);
+			console.log(product);
 
 			if (!product) {
 				throw new Error("There is no product with that ID");
@@ -65,14 +77,56 @@ export default class CartManager {
 				cart.save();
 			} else {
 				let newCartProducts = cart.products.filter(
-					(p) => p.product !== productID
+					(p) => p.product.toString() !== productID
 				);
 				cart.products = newCartProducts;
 				cart.save();
 			}
 			console.log(cart);
 		} catch (error) {
-			throw new Error(error.message);
+			throw new Error(error);
+		}
+	}
+
+	async moreQuantity(cartID, productID, quantity) {
+		try {
+			const cart = await cartModel.findById(cartID);
+			const product = await cartModel.findById(
+				(elem) => elem.product.toString() === productID
+			);
+
+			if (!cart) {
+				throw new Error("That cart doesn't exist");
+			}
+			if (product) {
+				product.quantity += quantity;
+				await cart.save();
+				await cart.populate("products.product");
+				console.log(JSON.stringify(cart, null, "\t"));
+			} else {
+				cartModel.products.push({ product: productID });
+				await cart.save();
+				const newProduct = cart.products.find(
+					(elem) => elem.product.toString() === productID
+				);
+				newProduct.quantity = quantity;
+				await cart.save();
+				await cart.populate("products.product");
+				console.log(JSON.stringify(cart, null, "\t"));
+			}
+		} catch (error) {
+			throw new Error(error);
+		}
+	}
+
+	async clearCart(cid) {
+		try {
+			const cart = await cartModel.findById(cid);
+			cart.products = [];
+			cart.save();
+			return cart;
+		} catch (error) {
+			throw new Error(error);
 		}
 	}
 }

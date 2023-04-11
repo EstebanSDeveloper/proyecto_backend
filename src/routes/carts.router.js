@@ -59,4 +59,29 @@ cartsRouter.delete("/:cid/products/:pid", async (req, res) => {
 	}
 });
 
+cartsRouter.put("/:cid/products/:pid", async (req, res) => {
+	try {
+		const { cid, pid } = req.params;
+		const { quantity } = req.body;
+		await cartManager.moreQuantity(cid, pid, quantity);
+
+		res.send({
+			status: "success",
+			payload: `Quantity of product with id:${pid} updated`,
+		});
+	} catch (error) {
+		res.status(404).send({ status: "error", error: `${error}` });
+	}
+});
+
+cartsRouter.delete("/:cid", async (req, res) => {
+	try {
+		const { cid } = req.params;
+		const result = await cartManager.clearCart(cid);
+		res.send({ status: "success", payload: result });
+	} catch (error) {
+		res.status(404).send({ status: "error", error: `${error}` });
+	}
+});
+
 export default cartsRouter;

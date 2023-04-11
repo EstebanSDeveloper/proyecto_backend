@@ -2,8 +2,9 @@
 <script defer src="/js/index.js"></script>
 
 <h1>Productos Tiempo Real:</h1>
+
 <ul id="containerProducts">
-	{{#each products}}
+	{{#each products.docs}}
 		<li>
 			<p><b>{{title}}</b></p>
 			<p>Precio: ${{price}}</p>
@@ -13,3 +14,17 @@
 		</li>
 	{{/each}}
 </ul>
+
+<div>
+	{{#if products.hasPrevPage}}
+		<a
+			href="/real-time-products/?page={{products.prevPage}}&sort={{products.sort}}&limit={{products.limit}}"
+		>Anterior</a>
+	{{/if}}
+	<span>Página {{products.page}} de {{products.totalPages}}</span>
+	{{#if products.hasNextPage}}
+		<a
+			href="/real-time-products/?page={{products.nextPage}}&sort={{products.sort}}&limit={{products.limit}}"
+		>Siguiente</a>
+	{{/if}}
+</div>

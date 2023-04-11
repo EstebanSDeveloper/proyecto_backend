@@ -8,9 +8,10 @@ import __dirname from "./utils.js";
 import viewsRouter from "./routes/views.router.js";
 import mongoose from "mongoose";
 
-const manager = new ProductManager("./src/jsons/products.json");
-const cartManager = new CartManager("./src/jsons/cart.json");
-
+const manager = new ProductManager();
+const cartManager = new CartManager();
+// const manager = new ProductManager("./src/jsons/products.json");
+// const cartManager = new CartManager("./src/jsons/cart.json")
 const app = express();
 app.use(json());
 

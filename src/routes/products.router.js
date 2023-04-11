@@ -6,18 +6,11 @@ productsRouter.use(json());
 
 productsRouter.get("/", async (req, res) => {
 	try {
-		const products = await manager.getProducts();
-		const { limit } = req.query;
+		const { limit, page, sort, title, stock } = req.query;
+		const query = { title, stock };
+		const products = await manager.getProducts(page, limit, sort, query);
 
-		if (limit > products.length) {
-			res.send("No existen tantos articulos en la base de datos");
-		}
-		if (!limit) {
-			res.send(products);
-		} else {
-			products.length = limit;
-			res.send(products);
-		}
+		res.send({ status: "success", payload: products });
 	} catch (err) {
 		res.status(404).send({ status: "error", error: `${err}` });
 	}
@@ -27,7 +20,7 @@ productsRouter.get("/:pid", async (req, res) => {
 	try {
 		const { pid } = req.params;
 		const product = await manager.getProductById(pid);
-		res.send({ status: "succes", payload: product });
+		res.send({ status: "success", payload: product });
 	} catch (err) {
 		res.status(404).send({ status: "error", error: `${err}` });
 	}
@@ -58,7 +51,7 @@ productsRouter.post("/", async (req, res) => {
 		);
 		//WEBSOCKET
 		req.io.emit("new-product", req.body);
-		res.send({ status: "succes", payload: req.body });
+		res.send({ status: "success", payload: req.body });
 	} catch (err) {
 		res.status(404).send({ status: "error", error: `${err}` });
 	}
@@ -72,7 +65,7 @@ productsRouter.put("/:pid", async (req, res) => {
 		const products = await manager.getProducts();
 		req.io.emit("update-product", products);
 
-		res.send({ status: "succes", payload: await manager.getProductById(pid) });
+		res.send({ status: "success", payload: await manager.getProductById(pid) });
 	} catch (err) {
 		res.status(404).send({ status: "error", error: `${err}` });
 	}

@@ -5,10 +5,8 @@ const cartSchema = new mongoose.Schema({
 		type: [
 			{
 				product: {
-					type: String,
-				},
-				title: {
-					type: String,
+					type: mongoose.Schema.Types.ObjectId,
+					ref: "products",
 				},
 				quantity: {
 					type: Number,
@@ -18,15 +16,6 @@ const cartSchema = new mongoose.Schema({
 		],
 
 		default: [],
-		// Luego utilizar populate
-		// type: [
-		//     {
-		//         product: {
-		//            type: mongoose.Schema.Types.ObjectId,
-		//            ref: "products"
-		//         }
-		//     }
-		// ],
 	},
 });
 
