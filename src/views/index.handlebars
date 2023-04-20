@@ -1,4 +1,6 @@
 <div>
+	<h2>Bienvenido {{userData.username}}</h2>
+
 	<h1>Productos:</h1>
 
 	<ul>
@@ -13,4 +15,18 @@
 		{{/each}}
 	</ul>
 
+</div>
+
+<div>
+	{{#if products.hasPrevPage}}
+		<a
+			href="/?page={{products.prevPage}}&sort={{products.sort}}&limit={{products.limit}}"
+		>Anterior</a>
+	{{/if}}
+	<span>Página {{products.page}} de {{products.totalPages}}</span>
+	{{#if products.hasNextPage}}
+		<a
+			href="/?page={{products.nextPage}}&sort={{products.sort}}&limit={{products.limit}}"
+		>Siguiente</a>
+	{{/if}}
 </div>

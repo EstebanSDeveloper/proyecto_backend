@@ -8,10 +8,12 @@ viewsRouter.get("/", async (req, res) => {
 	const { page, limit, sort, title, stock } = req.query;
 	const query = { title, stock };
 	const products = await manager.getProducts(page, limit, sort, query);
-	res.render("index", { products, title: "Products" });
+	const userData = req.session;
+	console.log(req.session);
+	res.render("index", { userData, products, title: "Productos" });
 });
 
-viewsRouter.get("/real-time-products", async (req, res) => {
+viewsRouter.get("/real-time-products", authenticate, async (req, res) => {
 	const { page, limit, sort, title, stock } = req.query;
 	const query = { title, stock };
 	const products = await manager.getProducts(page, limit, sort, query);
@@ -31,5 +33,17 @@ viewsRouter.get("/carts/:cid", async (req, res) => {
 	console.log(cartProducts);
 	res.render("cart", { cartProducts });
 });
+
+//middle se aut
+async function authenticate(req, res, next) {
+	//console.log(`esto se ve desde middleware ${req.user.role}`);
+	if (req.user.role === "admin") {
+		return next();
+	} else {
+		res.send(
+			`${req.session.username} no tienes acceso, esta es un area solo para admin`
+		);
+	}
+}
 
 export default viewsRouter;
