@@ -1,0 +1,5 @@
+http://localhost:8080/api/sessions/github-callback
+
+Owned by: @EstebanSDeveloper
+Client ID: Iv1.29c407f068be49d5
+Client secret f3e4cfcfa6da8ed5b9f6cd8ae7ed03a926a613bb

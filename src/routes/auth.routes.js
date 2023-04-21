@@ -5,11 +5,26 @@ import passport from "passport";
 
 const router = Router();
 
-// Autenticacion passport
+// AUTENTICACION PASSPORT GITHUB
+
+router.get("/github", passport.authenticate("githubSignup"));
+
+router.get(
+	"/github-callback",
+	passport.authenticate("githubSignup", {
+		failureRedirect: "/api/sessions/failure-signup",
+	}),
+	(req, res) => {
+		res.send("usuario autenticado");
+	}
+);
+
+// AUTENTICACION CON PASSPORT
+
 router.post(
 	"/signup",
 	passport.authenticate("signupStrategy", {
-		failureRedirect: "/failure-signup",
+		failureRedirect: "api/sessions/failure-signup",
 	}),
 	(req, res) => {
 		res.redirect("/");
@@ -36,7 +51,17 @@ router.get("/login-failed", (req, res) => {
 	res.send({ error: "Failed login" });
 });
 
-// rutas de autenticación sessions
+router.get("/logout", (req, res) => {
+	req.logOut((error) => {
+		if (error) return res.send("no se pudo cerrar la sesion");
+		req.session.destroy((err) => {
+			if (err) return res.send("no se pudo cerrar la sesion");
+			res.redirect("/login");
+		});
+	});
+});
+
+// AUTENTICACION CON SESSIONS
 
 // registro
 
@@ -63,6 +88,7 @@ router.get("/login-failed", (req, res) => {
 // });
 
 //login
+
 // router.post("/login", async (req, res) => {
 // 	const { email, password } = req.body;
 // 	const authorized = await UserModel.findOne({ email: email }).lean();
@@ -93,16 +119,4 @@ router.get("/login-failed", (req, res) => {
 // 	}
 // });
 
-router.get("/logout", (req, res) => {
-	req.logOut((error) => {
-		if (error) return res.send("no se pudo cerrar la sesion");
-		req.session.destroy((err) => {
-			if (err) return res.send("no se pudo cerrar la sesion");
-			res.redirect("/login");
-		});
-	});
-});
-
 export { router as AuthRouter };
-
-// automatizacion y autenticacion 1:50

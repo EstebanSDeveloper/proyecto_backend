@@ -2,6 +2,7 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import { UserModel } from "../dao/models/user.models.js";
 import { createHash, isValidPassword } from "../utils.js";
+import GitHubStrategy from "passport-github2";
 
 // funcion que me permite iniciar passport y poner logica de autenticacion para autenticacion
 
@@ -68,6 +69,40 @@ const inicializedPassport = () => {
 					return done(null, user);
 				} catch (error) {
 					return error;
+				}
+			}
+		)
+	);
+
+	// Estrategia autenticar usuarios a traves de github usando middleware
+	passport.use(
+		"githubSignup",
+		new GitHubStrategy(
+			{
+				clientID: "Iv1.29c407f068be49d5",
+				clientSecret: "f7c554780a2b1ec3787db432915104c439aea082",
+				callbackURL: "http://localhost:8080/api/sessions/github-callback",
+			},
+			async (accessToken, refreshToken, profile, done) => {
+				try {
+					console.log("profile", profile);
+					const userExists = await UserModel.findOne({
+						email: profile.username,
+					});
+					if (userExists) {
+						return done(null, userExists);
+					}
+					const newUser = {
+						name: profile.displayName,
+						age: null,
+						email: profile.username,
+						password: createHash(profile.id),
+						role: "user",
+					};
+					const userCreated = await UserModel.create(newUser);
+					return done(null, userCreated);
+				} catch (error) {
+					return done(error);
 				}
 			}
 		)
